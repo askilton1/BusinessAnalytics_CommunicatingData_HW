@@ -1,0 +1,99 @@
+---
+title: "Technical Appendix"
+author: "Antonio Skilton"
+date: "September 16, 2016"
+output: pdf_document
+---
+
+## Data Import
+
+Before analyzing the data contained in the CSV file, we bring the file into memory as a tibble using the dplyr package. This allows us to "glimpse" the data in a more friendly way than we otherwise would using base R. It also allows us to manipulate and summarise the data in a more intuitive fashion.
+
+Here we see that the dataset, which we store as tibble object named AdData, contains 5 variables and 200 observations, where each observation is a single store (!!! TIME FRAME?!). TV, Radio, and Newspaper all detail the amount of advertising spending over (TIME FRAME) in thousands of dollars. Sales represents the amount of sales over (TIME FRAME) in millions of dollars. Market details the type of market the store is located in.
+```{r, message=FALSE}
+library(dplyr)
+AdData <- tbl_df(read.csv("1_FDA_AdData.csv")) %>%
+  mutate(Sales = Sales * 1000,AdSpending = rowSums(.[1:3]),row_number=1:n())
+```
+```{r,results='asis',message=FALSE}
+library(knitr)
+kable(AdData[1:10,])
+```
+
+First we adjust the 'Sales' column, originally measured in millions of dollars, so that all dollar columns are measured in thousands of dollars with the following code:
+
+\newpage
+
+## Summary Statistics
+Basic summary statistics:
+```{r,message=FALSE,results='asis',fig.align='center'}
+library(reshape2)
+AdData.melt <- melt(AdData,id=c("row_number","Market","Sales"));kable(AdData.melt[1:10,])
+library(ggplot2)
+ggplot(AdData.melt,aes(x=Market,y=value,color=variable)) + geom_boxplot()
+```
+
+```{r,echo=FALSE}
+AdData <- select(AdData,-row_number)
+```
+
+\newpage
+
+Histograms and total advertising spending per individual store by Market, in thousands of dollars below. It is clear that advertising spending is correlated with sales. Due to the categorical differences between markets however, we cannot assume any causative relationships
+```{r, message=FALSE, warning=FALSE,fig.align='center',fig.height=3}
+library(psych)
+kable(describe(AdData[,1:4],skew=FALSE)[,c(-1,-8)])
+library(ggplot2)
+plot_Sales <- ggplot(AdData,aes(x=Sales,fill=Market)) + 
+  geom_histogram(position="dodge") + facet_grid(Market~.) + 
+  theme(legend.position="none",strip.text.y=element_blank())
+plot_Adspending <- ggplot(AdData,aes(x=AdSpending,fill=Market)) + 
+  geom_histogram(position="dodge") + 
+  facet_grid(Market~.) + 
+  theme(legend.position="none",axis.title.y=element_blank(),
+        axis.text.y=element_blank(),axis.ticks.y=element_blank()) + 
+  scale_y_continuous(limits=c(0,15))
+library(gridExtra)
+grid.arrange(plot_Sales,plot_Adspending,ncol=2)
+```
+
+The same correlation is perhaps better visualized using a dotplot:
+```{r,fig.height=4}
+ggplot(AdData,aes(x=AdSpending,y=Sales,color=Market)) + geom_point()
+```
+
+\newpage
+
+## Discovering Trends
+We use the reshape2 package in order to reshape the data; each observation in the new dataset represents a unique combination of store and type of advertising. The resulting data frame is plotted by the ggplot2 package, which facets the data by both type of market and type of advertising spending. Each dot represents an individual observation as described, while the lines are trendlines that include 95% confidence interval boundaries.
+
+```{r pressure, echo=T,message=FALSE,fig.align='center'}
+library(ggplot2)
+ggplot(AdData.melt,aes(x=value,y=Sales,color=Market)) + 
+  geom_point() + 
+  stat_smooth() + 
+  facet_grid(Market~variable,scales="free") 
+```
+
+In the above plot we see clear positive correlations for TV advertising in the Rural and Suburban markets, and Radio advertising spending in the Urban market. Several of the plots, such as the bottom right plot depicting the relationship between Newspaper advertising and spending and Sales in Urban Markets, contain outliers that obfuscate what might otherwise be clear trends.
+
+\newpage
+
+## Linear Models
+In order to determine how to most efficiently allocate advertising spending, we use linear regression to find the model that most accurately predicts sales. Note that television ad spending has an exponential relationship with sales in Rural markets.
+
+
+```{r, message=FALSE, warning=FALSE}
+Rural.mod <- lm(Sales~TV+I(TV^2)+Radio+Newspaper,data=AdData[AdData$Market=="Rural",-5])
+Urban.mod <- lm(Sales~TV+Radio+Newspaper,data=AdData[AdData$Market=="Urban",-5])
+SubUrban.mod <- lm(Sales~TV+Radio+Newspaper,data=AdData[AdData$Market=="SubUrban",-5])
+```
+
+```{r,results='asis', message=FALSE}
+library(stargazer)
+stargazer(Rural.mod,Urban.mod,SubUrban.mod,
+          covariate.labels=c("TV","TV*TV","Radio","Newspaper"),
+          column.labels=c("Rural","Urban","SubUrban"),
+no.space=TRUE,header=FALSE,keep.stat=c("n","adj.rsq"))
+```
+
