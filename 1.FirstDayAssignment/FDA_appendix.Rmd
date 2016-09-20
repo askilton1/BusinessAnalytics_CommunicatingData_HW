@@ -34,9 +34,12 @@ AdData <- mutate(AdData,row_number=1:n())
 library(reshape2)
 AdData.melt <- melt(AdData,id=c("row_number","Market","Sales"))
 library(ggplot2)
-ggplot(AdData.melt,aes(x=Market,y=value,color=variable)) +
+ggplot(filter(AdData.melt,variable!="AdSpending"),aes(x=Market,y=value,color=variable,alpha=0.75)) +
   geom_boxplot() + 
-  theme(legend.position="top")
+  theme(legend.position="bottom",legend.title=element_blank()) + 
+  ggtitle("Figure 1: Distribution of Advertising Spending by \nMarket and Advertising Medium") + 
+  ylab("Advertising Spending (in $1M)") + 
+  scale_alpha(guide="none")
 AdData <- select(AdData,-row_number)
 ```
 
@@ -61,7 +64,9 @@ grid.arrange(plot_Sales,plot_Adspending,ncol=2)
 
 The same correlation is perhaps better visualized using a dotplot:
 ```{r,fig.height=4,echo=FALSE,fig.align='center'}
-ggplot(AdData,aes(x=AdSpending,y=Sales,color=Market)) + geom_point()
+ggplot(AdData,aes(x=AdSpending,y=Sales,color=Market,alpha=0.75)) + 
+  geom_point() + 
+  scale_alpha(guide="none")
 ```
 
 \newpage
@@ -71,14 +76,14 @@ We use the reshape2 package in order to reshape the data; each observation in th
 
 ```{r pressure, echo=T,message=FALSE,fig.align='center',echo=FALSE}
 library(ggplot2)
-ggplot(AdData.melt,aes(x=value,y=Sales/1000,color=Market)) + 
+ggplot(AdData.melt,aes(x=value,y=Sales/1000,color=Market,alpha=0.75)) + 
   geom_point() + 
   theme(legend.position="none") + 
   stat_smooth() + 
   facet_grid(Market~variable,scales="free") + 
   ggtitle("Sales by Advertising Spending") + 
-  ylab("Sales (in millions of dollars)") + 
-  xlab("Advertising Spending (in thousands of dollars)")
+  ylab("Sales (in $1M)") + 
+  xlab("Advertising Spending (in $1K)")
 ```
 
 In the above plot we see clear positive correlations for TV advertising in the Rural and Suburban markets, and Radio advertising spending in the Urban market. Several of the plots, such as the bottom right plot depicting the relationship between Newspaper advertising and spending and Sales in Urban Markets, contain outliers that obfuscate what might otherwise be clear trends.
