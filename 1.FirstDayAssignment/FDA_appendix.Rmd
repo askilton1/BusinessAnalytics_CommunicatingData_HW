@@ -23,15 +23,25 @@ kable(AdData[1:20,],caption="First 20 rows of Advertising data",align='c')
 \newpage
 
 ## Summary Statistics
-```{r,message=FALSE}
+```{r,message=FALSE,echo=TRUE}
 library(psych)
 sumStats <- describe(select(AdData,-Market),skew=FALSE)[,c(-1,-2,-8)]
 kable(sumStats,digits=2,caption="Summary Statistics",align='c')
 ```
+```{r,echo=TRUE}
+AdData %>% 
+  group_by(Market) %>% 
+  summarise(TV = sum(TV),
+            Radio = sum(Radio),
+            Newspaper = sum(Newspaper),
+            Total=sum(AdSpending)) %>% 
+  kable(caption=("Sums of Advertising Spending"),align='c')
+```
 
+\newpage
 Histograms and total advertising spending per individual store by Market, in thousands of dollars below. It is clear that advertising spending is correlated with sales. Due to the categorical differences between markets however, we cannot assume any causative relationships
 
-```{r, message=FALSE, warning=FALSE,fig.align='center',fig.height=3,echo=FALSE,fig.width=5}
+```{r, message=FALSE, warning=FALSE,fig.align='center',fig.height=3,echo=TRUE,fig.width=5}
 library(ggplot2)
 plot_Sales <- ggplot(AdData,aes(x=Sales,fill=Market)) + 
   geom_histogram(position="dodge") + facet_grid(Market~.) + 
@@ -45,9 +55,17 @@ plot_Adspending <- ggplot(AdData,aes(x=AdSpending,fill=Market)) +
         axis.text.y=element_blank(),axis.ticks.y=element_blank(),
         axis.title=element_text(family="Times"),axis.text=element_text(family="Times"),
         panel.background = element_rect(fill = "white")) + 
-  scale_y_continuous(limits=c(0,15))
+  scale_y_continuous(limits=c(0,15)) + 
+  xlab("Advertising Sending")
 library(gridExtra);library(grid)
-grid.arrange(plot_Sales,plot_Adspending,ncol=2,top=textGrob("Figure 1: Histograms of Sales and \nTotal Advertising Spending", gp=gpar(fontsize=10,fontfamily="Times")))
+grid.arrange(plot_Sales,
+             plot_Adspending,
+             ncol=2,
+             top=textGrob("Figure 1: Histograms of Sales and Advertising Spending",
+                          gp=gpar(fontsize=10,fontfamily="Times")))
+```
+```{r,echo=FALSE,message=FALSE}
+ggsave("histograms.png",width=5,height=5,units="in")
 ```
 
 \newpage
@@ -55,7 +73,7 @@ grid.arrange(plot_Sales,plot_Adspending,ncol=2,top=textGrob("Figure 1: Histogram
 ## Correlations
 We use the reshape2 package in order to reshape the data; each observation in the new dataset represents a unique combination of store and type of advertising. The resulting data frame is plotted by the ggplot2 package, which facets the data by both type of market and type of advertising spending. Each dot represents an individual observation as described, while the lines are trendlines that include 95% confidence interval boundaries.
 
-```{r pressure, echo=T,message=FALSE,fig.align='center',echo=FALSE}
+```{r pressure, echo=T,message=FALSE,fig.align='center',echo=TRUE}
 AdData <- mutate(AdData,row_number=1:n())
 library(reshape2)
 AdData.melt <- melt(AdData,id=c("row_number","Market","Sales"))
@@ -64,17 +82,19 @@ library(ggplot2)
 ggplot(filter(AdData.melt,variable!="AdSpending"),aes(x=value,y=Sales/1000,alpha=0.75)) + 
   geom_point(aes(color=Market)) + 
   theme(legend.position="none",
-        axis.title=element_text(family="Times"),axis.text=element_text(family="Times"),
-        plot.title=element_text(family="Times"),panel.background = element_rect(fill = "white")) + 
-  geom_smooth(color="black") + 
+        axis.title=element_text(family="Times"),
+        axis.text=element_text(family="Times"),
+        plot.title=element_text(family="Times"),
+        panel.background = element_rect(fill = "white")) + 
+  stat_smooth(color="black",se=FALSE) + 
   facet_grid(Market~variable,scales="free") + 
   ggtitle("Figure 2: Sales by Advertising Spending") + 
   ylab("Sales (in $1M)") + 
   xlab("Advertising Spending (in $1K)")
+```
+```{r,echo=FALSE}
 ggsave("Sales_AdSpend.png",width=5,height=5,units="in")
 ```
-
-In the above plot we see clear positive correlations for TV advertising in the Rural and Suburban markets, and Radio advertising spending in the Urban market. Several of the plots, such as the bottom right plot depicting the relationship between Newspaper advertising and spending and Sales in Urban Markets, contain outliers that obfuscate what might otherwise be clear trends.
 
 \newpage
 
