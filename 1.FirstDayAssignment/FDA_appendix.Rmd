@@ -38,7 +38,7 @@ ggplot(filter(AdData.melt,variable!="AdSpending"),aes(x=Market,y=value,color=var
   geom_boxplot() + 
   theme(legend.position="bottom",legend.title=element_blank()) + 
   ggtitle("Figure 1: Distribution of Advertising Spending by \nMarket and Advertising Medium") + 
-  ylab("Advertising Spending (in $1M)") + 
+  ylab("Advertising Spending (in $1K)") + 
   scale_alpha(guide="none")
 AdData <- select(AdData,-row_number)
 ```
@@ -51,22 +51,28 @@ Histograms and total advertising spending per individual store by Market, in tho
 library(ggplot2)
 plot_Sales <- ggplot(AdData,aes(x=Sales,fill=Market)) + 
   geom_histogram(position="dodge") + facet_grid(Market~.) + 
-  theme(legend.position="none",strip.text.y=element_blank())
+  theme(legend.position="none",strip.text.y=element_blank(),
+        axis.title=element_text(family="Times"),axis.text=element_text(family="Times"))
 plot_Adspending <- ggplot(AdData,aes(x=AdSpending,fill=Market)) + 
   geom_histogram(position="dodge") + 
   facet_grid(Market~.) + 
   theme(legend.position="none",axis.title.y=element_blank(),
-        axis.text.y=element_blank(),axis.ticks.y=element_blank()) + 
+        axis.text.y=element_blank(),axis.ticks.y=element_blank(),
+        axis.title=element_text(family="Times"),axis.text=element_text(family="Times")) + 
   scale_y_continuous(limits=c(0,15))
-library(gridExtra)
-grid.arrange(plot_Sales,plot_Adspending,ncol=2)
+library(gridExtra);library(grid)
+grid.arrange(plot_Sales,plot_Adspending,ncol=2,top=textGrob("Figure 2: Histograms of Sales and \nTotal Ad Spending Amounts", gp=gpar(fontsize=15,fontfamily="Times")))
 ```
 
 The same correlation is perhaps better visualized using a dotplot:
 ```{r,fig.height=4,echo=FALSE,fig.align='center'}
 ggplot(AdData,aes(x=AdSpending,y=Sales,color=Market,alpha=0.75)) + 
   geom_point() + 
-  scale_alpha(guide="none")
+  scale_alpha(guide="none") + 
+  ylab("Sales (in $1M)") + 
+  xlab("Advertising Spending (in $1K)") + 
+  theme(legend.position="bottom",legend.title=element_blank(),
+        axis.text.x=element_text(family="Times")) 
 ```
 
 \newpage
@@ -92,7 +98,6 @@ In the above plot we see clear positive correlations for TV advertising in the R
 
 ## Linear Models
 In order to determine how to most efficiently allocate advertising spending, we use linear regression to find the model that most accurately predicts sales. Note that television ad spending has an exponential relationship with sales in Rural markets.
-
 
 ```{r, message=FALSE, warning=FALSE}
 Rural.mod <- lm(Sales~TV+I(TV^2)+Radio+Newspaper,data=AdData[AdData$Market=="Rural",-5])
