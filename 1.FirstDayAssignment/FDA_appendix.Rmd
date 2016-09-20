@@ -6,43 +6,45 @@ output: pdf_document
 ---
 
 ## Data Import
+The dataset contains 5 variables and 200 observations detailing the advertising spending and sales revenue of a product in each market. The "TV", "Radio", and "Newspaper" columns represent advertising spending in thousands of dollars, "Sales" represents sales revenue in millions of dollars, and "Market" specifies whether the market advertised and sold in was "Urban", "Rural", or "SubUrban".
 
-Before analyzing the data contained in the CSV file, we bring the file into memory as a tibble using the dplyr package. This allows us to "glimpse" the data in a more friendly way than we otherwise would using base R. It also allows us to manipulate and summarise the data in a more intuitive fashion.
-
-Here we see that the dataset, which we store as tibble object named AdData, contains 5 variables and 200 observations, where each observation is a single store (!!! TIME FRAME?!). TV, Radio, and Newspaper all detail the amount of advertising spending over (TIME FRAME) in thousands of dollars. Sales represents the amount of sales over (TIME FRAME) in millions of dollars. Market details the type of market the store is located in.
+I have also added "AdSpending", which is simply the sum of "TV", "Radio", and "Newspaper".
 ```{r, message=FALSE}
 library(dplyr)
-AdData <- tbl_df(read.csv("1_FDA_AdData.csv")) %>%
-  mutate(Sales = Sales * 1000,AdSpending = rowSums(.[1:3]),row_number=1:n())
-```
-```{r,results='asis',message=FALSE}
-library(knitr)
-kable(AdData[1:10,])
+AdData <- read.csv("1_FDA_AdData.csv") %>%
+  mutate(Sales = Sales * 1000,AdSpending = rowSums(.[1:3]))
 ```
 
-First we adjust the 'Sales' column, originally measured in millions of dollars, so that all dollar columns are measured in thousands of dollars with the following code:
+```{r,results='asis',message=FALSE,echo=FALSE}
+library(knitr)
+kable(AdData[1:20,],caption="First 20 rows of Advertising data",align='c')
+```
 
 \newpage
 
 ## Summary Statistics
-Basic summary statistics:
-```{r,message=FALSE,results='asis',fig.align='center'}
-library(reshape2)
-AdData.melt <- melt(AdData,id=c("row_number","Market","Sales"));kable(AdData.melt[1:10,])
-library(ggplot2)
-ggplot(AdData.melt,aes(x=Market,y=value,color=variable)) + geom_boxplot()
+```{r,message=FALSE}
+library(psych)
+sumStats <- describe(select(AdData,-Market),skew=FALSE)[,c(-1,-2,-8)]
+kable(sumStats,digits=2,caption="Summary Statistics",align='c')
 ```
 
-```{r,echo=FALSE}
+```{r,message=FALSE,results='asis',fig.align='center',echo=FALSE}
+AdData <- mutate(AdData,row_number=1:n())
+library(reshape2)
+AdData.melt <- melt(AdData,id=c("row_number","Market","Sales"))
+library(ggplot2)
+ggplot(AdData.melt,aes(x=Market,y=value,color=variable)) +
+  geom_boxplot() + 
+  theme(legend.position="top")
 AdData <- select(AdData,-row_number)
 ```
 
 \newpage
 
 Histograms and total advertising spending per individual store by Market, in thousands of dollars below. It is clear that advertising spending is correlated with sales. Due to the categorical differences between markets however, we cannot assume any causative relationships
-```{r, message=FALSE, warning=FALSE,fig.align='center',fig.height=3}
-library(psych)
-kable(describe(AdData[,1:4],skew=FALSE)[,c(-1,-8)])
+
+```{r, message=FALSE, warning=FALSE,fig.align='center',fig.height=3,echo=FALSE}
 library(ggplot2)
 plot_Sales <- ggplot(AdData,aes(x=Sales,fill=Market)) + 
   geom_histogram(position="dodge") + facet_grid(Market~.) + 
@@ -58,7 +60,7 @@ grid.arrange(plot_Sales,plot_Adspending,ncol=2)
 ```
 
 The same correlation is perhaps better visualized using a dotplot:
-```{r,fig.height=4}
+```{r,fig.height=4,echo=FALSE,fig.align='center'}
 ggplot(AdData,aes(x=AdSpending,y=Sales,color=Market)) + geom_point()
 ```
 
@@ -67,12 +69,16 @@ ggplot(AdData,aes(x=AdSpending,y=Sales,color=Market)) + geom_point()
 ## Discovering Trends
 We use the reshape2 package in order to reshape the data; each observation in the new dataset represents a unique combination of store and type of advertising. The resulting data frame is plotted by the ggplot2 package, which facets the data by both type of market and type of advertising spending. Each dot represents an individual observation as described, while the lines are trendlines that include 95% confidence interval boundaries.
 
-```{r pressure, echo=T,message=FALSE,fig.align='center'}
+```{r pressure, echo=T,message=FALSE,fig.align='center',echo=FALSE}
 library(ggplot2)
-ggplot(AdData.melt,aes(x=value,y=Sales,color=Market)) + 
+ggplot(AdData.melt,aes(x=value,y=Sales/1000,color=Market)) + 
   geom_point() + 
+  theme(legend.position="none") + 
   stat_smooth() + 
-  facet_grid(Market~variable,scales="free") 
+  facet_grid(Market~variable,scales="free") + 
+  ggtitle("Sales by Advertising Spending") + 
+  ylab("Sales (in millions of dollars)") + 
+  xlab("Advertising Spending (in thousands of dollars)")
 ```
 
 In the above plot we see clear positive correlations for TV advertising in the Rural and Suburban markets, and Radio advertising spending in the Urban market. Several of the plots, such as the bottom right plot depicting the relationship between Newspaper advertising and spending and Sales in Urban Markets, contain outliers that obfuscate what might otherwise be clear trends.
@@ -89,11 +95,11 @@ Urban.mod <- lm(Sales~TV+Radio+Newspaper,data=AdData[AdData$Market=="Urban",-5])
 SubUrban.mod <- lm(Sales~TV+Radio+Newspaper,data=AdData[AdData$Market=="SubUrban",-5])
 ```
 
-```{r,results='asis', message=FALSE}
+```{r,results='asis', message=FALSE,echo=FALSE}
 library(stargazer)
 stargazer(Rural.mod,Urban.mod,SubUrban.mod,
           covariate.labels=c("TV","TV*TV","Radio","Newspaper"),
           column.labels=c("Rural","Urban","SubUrban"),
-no.space=TRUE,header=FALSE,keep.stat=c("n","adj.rsq"))
+no.space=TRUE,header=FALSE,keep.stat=c("n","adj.rsq"),title="Linear Models by Market",model.numbers=FALSE)
 ```
 
