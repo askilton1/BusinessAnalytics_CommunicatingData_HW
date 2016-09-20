@@ -36,8 +36,10 @@ AdData.melt <- melt(AdData,id=c("row_number","Market","Sales"))
 library(ggplot2)
 ggplot(filter(AdData.melt,variable!="AdSpending"),aes(x=Market,y=value,color=variable,alpha=0.75)) +
   geom_boxplot() + 
-  theme(legend.position="bottom",legend.title=element_blank()) + 
-  ggtitle("Figure 1: Distribution of Advertising Spending by \nMarket and Advertising Medium") + 
+  theme(legend.position="bottom",legend.title=element_blank(),
+        axis.title=element_text(family="Times"),axis.text=element_text(family="Times"),
+        plot.title=element_text(family="Times"),legend.text=element_text(family="Times")) + 
+  ggtitle("Figure 1: Distribution of Advertising Spending \nby Market and Advertising Medium") + 
   ylab("Advertising Spending (in $1K)") + 
   scale_alpha(guide="none")
 AdData <- select(AdData,-row_number)
@@ -72,7 +74,7 @@ ggplot(AdData,aes(x=AdSpending,y=Sales,color=Market,alpha=0.75)) +
   ylab("Sales (in $1M)") + 
   xlab("Advertising Spending (in $1K)") + 
   theme(legend.position="bottom",legend.title=element_blank(),
-        axis.text.x=element_text(family="Times")) 
+        axis.title=element_text(family="Times"),axis.text=element_text(family="Times"),legend.text=element_text(family="Times")) 
 ```
 
 \newpage
@@ -84,7 +86,8 @@ We use the reshape2 package in order to reshape the data; each observation in th
 library(ggplot2)
 ggplot(AdData.melt,aes(x=value,y=Sales/1000,color=Market,alpha=0.75)) + 
   geom_point() + 
-  theme(legend.position="none") + 
+  theme(legend.position="none",
+        axis.title=element_text(family="Times"),axis.text=element_text(family="Times"),plot.title=element_text(family="Times")) + 
   stat_smooth() + 
   facet_grid(Market~variable,scales="free") + 
   ggtitle("Sales by Advertising Spending") + 
