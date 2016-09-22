@@ -87,7 +87,7 @@ ggplot(filter(AdData.melt,variable!="AdSpending"),aes(x=value,y=Sales/1000,alpha
         plot.title=element_text(family="Times"),
         panel.background = element_rect(fill = "white")) + 
   stat_smooth(color="black",se=FALSE,method='lm') + 
-  facet_grid(Market~variable,scales="free") + 
+  facet_grid(Market~variable) + 
   ggtitle("Figure 2: Sales by Advertising Spending") + 
   ylab("Sales (in $1M)") + 
   xlab("Advertising Spending (in $1K)")
@@ -109,9 +109,9 @@ SubUrban.mod <- lm(Sales~TV+Radio+Newspaper,data=AdData[AdData$Market=="SubUrban
 
 ```{r,results='asis', message=FALSE,echo=FALSE}
 library(stargazer)
-stargazer(Rural.mod,Urban.mod,SubUrban.mod,
+stargazer(Rural.mod,SubUrban.mod,Urban.mod,
           covariate.labels=c("TV","Radio","Newspaper"),
-          column.labels=c("Rural","Urban","SubUrban"),
+          column.labels=c("Rural","SubUrban","Urban"),
 no.space=TRUE,header=FALSE,keep.stat=c("n","adj.rsq"),title="Linear Models by Market",model.numbers=FALSE)
 ```
 
