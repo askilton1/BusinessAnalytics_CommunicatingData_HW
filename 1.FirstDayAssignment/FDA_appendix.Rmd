@@ -102,7 +102,7 @@ ggsave("Sales_AdSpend.png",width=5,height=5,units="in")
 In order to determine how to most efficiently allocate advertising spending, we use linear regression to find the model that most accurately predicts sales. Note that television ad spending has an exponential relationship with sales in Rural markets.
 
 ```{r, message=FALSE, warning=FALSE}
-Rural.mod <- lm(Sales~TV+I(TV^2)+Radio+Newspaper,data=AdData[AdData$Market=="Rural",-5])
+Rural.mod <- lm(Sales~TV+Radio+Newspaper,data=AdData[AdData$Market=="Rural",-5])
 Urban.mod <- lm(Sales~TV+Radio+Newspaper,data=AdData[AdData$Market=="Urban",-5])
 SubUrban.mod <- lm(Sales~TV+Radio+Newspaper,data=AdData[AdData$Market=="SubUrban",-5])
 ```
@@ -110,7 +110,7 @@ SubUrban.mod <- lm(Sales~TV+Radio+Newspaper,data=AdData[AdData$Market=="SubUrban
 ```{r,results='asis', message=FALSE,echo=FALSE}
 library(stargazer)
 stargazer(Rural.mod,Urban.mod,SubUrban.mod,
-          covariate.labels=c("TV","TV*TV","Radio","Newspaper"),
+          covariate.labels=c("TV","Radio","Newspaper"),
           column.labels=c("Rural","Urban","SubUrban"),
 no.space=TRUE,header=FALSE,keep.stat=c("n","adj.rsq"),title="Linear Models by Market",model.numbers=FALSE)
 ```
