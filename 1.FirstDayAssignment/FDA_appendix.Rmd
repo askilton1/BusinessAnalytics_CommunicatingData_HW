@@ -34,7 +34,7 @@ AdData %>%
   summarise(TV = sum(TV),
             Radio = sum(Radio),
             Newspaper = sum(Newspaper),
-            Total=sum(AdSpending)) %>% 
+            Totaln = sum(AdSpending)) %>% 
   kable(caption=("Sums of Advertising Spending"),align='c')
 ```
 
@@ -86,7 +86,7 @@ ggplot(filter(AdData.melt,variable!="AdSpending"),aes(x=value,y=Sales/1000,alpha
         axis.text=element_text(family="Times"),
         plot.title=element_text(family="Times"),
         panel.background = element_rect(fill = "white")) + 
-  stat_smooth(color="black",se=FALSE) + 
+  stat_smooth(color="black",se=FALSE,method='lm') + 
   facet_grid(Market~variable,scales="free") + 
   ggtitle("Figure 2: Sales by Advertising Spending") + 
   ylab("Sales (in $1M)") + 
