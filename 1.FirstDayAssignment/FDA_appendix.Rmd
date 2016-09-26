@@ -34,7 +34,7 @@ AdData %>%
   summarise(TV = sum(TV),
             Radio = sum(Radio),
             Newspaper = sum(Newspaper),
-            Totaln = sum(AdSpending)) %>% 
+            Total = sum(AdSpending)) %>% 
   kable(caption=("Sums of Advertising Spending"),align='c')
 ```
 
@@ -110,8 +110,8 @@ SubUrban.mod <- lm(Sales~TV+Radio+Newspaper,data=AdData[AdData$Market=="SubUrban
 ```{r,results='asis', message=FALSE,echo=FALSE}
 library(stargazer)
 stargazer(Rural.mod,SubUrban.mod,Urban.mod,
-          covariate.labels=c("TV","Radio","Newspaper"),
-          column.labels=c("Rural","SubUrban","Urban"),
+          # covariate.labels=c("TV","Radio","Newspaper"),
+          # column.labels=c("Rural","SubUrban","Urban"),
 no.space=TRUE,header=FALSE,keep.stat=c("n","adj.rsq"),title="Linear Models by Market",model.numbers=FALSE)
 ```
 
