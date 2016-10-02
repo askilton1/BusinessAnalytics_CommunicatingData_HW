@@ -14,7 +14,7 @@ clean <- function(raw,plot=FALSE,LASSO=TRUE,ALL=TRUE){
   ##COLINEARITY
   if(plot==TRUE) pairs.panels(raw)#plot shows correlation between variables
   data.ls <- list()
-  data.ls$df <- df %>%
+  data.ls$completeData <- df %>%
     select(-Age_Cat)#colinear with Age variable
   
   if(plot==TRUE) pairs.panels(select(df,-response))#in second plot, response var has 0 correlation
