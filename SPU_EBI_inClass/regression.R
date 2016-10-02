@@ -1,27 +1,31 @@
 source("clean.R")
-EBI <- clean(read.csv("2_EBI_Data.csv"))
 library(stargazer)
-stargazer(lm(rating~.,data=data.frame(EBI$electronicsLASSO)),
-          lm(rating~.,data=data.frame(EBI$percrip_medLASSO)),
-          lm(rating~.,data.frame(EBI$drn_clnrLASSO)),
-          lm(rating~.,data.frame(EBI$dsps_foodLASSO)),
-          lm(rating~.,data=data.frame(model.matrix(~.,EBI$df))),
+
+EBI <- clean(read.csv("2_EBI_Data.csv"))
+attach(EBI)
+
+stargazer(lm(rating~.,data=data.frame(electronics)),
+          lm(rating~.,data=data.frame(percrip_med)),
+          lm(rating~.,data.frame(drn_clnr)),
+          lm(rating~.,data.frame(dsps_food)),
+          lm(rating~.,data=data.frame(model.matrix(~.,completeData))),
           type="text",no.space=TRUE)
 
 ##LASSO variable selection
-lasso.fun(EBI$electronicsLASSO)$coefficients
-lasso.fun(EBI$electronicsLASSO)$RMSE
-#     results[8,1] <- ipred::errorest(mnyordEVER~.,data=test,model=qda,estimator="cv",predict=mypredict.pca)$error
-
-electronics.mod <- glmnet(EBI$electronicsLASSO[,-24],EBI$electronicsLASSO[,24],alpha=1,lambda=EBI$grid)
-    set.seed(1)
-    cv.out <- cv.glmnet(EBI$electronicsLASSO[,-24],EBI$electronicsLASSO[,24],alpha=1)
-    predict(electronics.mod,type="coefficients",s=cv.out$lambda.min)
-    lasso.pred<-predict(electronics.mod ,s=cv.out$lambda.min,newx=EBI$electronicsLASSO[,-24])
-    ((mean(lasso.pred-EBI$electronicsLASSO[,24]))^2)^.5   
-percrip_med.mod <- glmnet(EBI$electronicsLASSO[,-24],EBI$electronicsLASSO[,24],alpha=1,lambda=EBI$grid)
-    set.seed(1)
-    cv.out <- cv.glmnet(EBI$electronicsLASSO[,-24],EBI$electronicsLASSO[,24],alpha=1)
-    predict(percrip_med.mod,type="coefficients",s=cv.out$lambda.min)
-    lasso.pred<-predict(percrip_med.mod ,s=cv.out$lambda.min,newx=EBI$electronicsLASSO[,-24])
-    ((mean(lasso.pred-EBI$electronicsLASSO[,24]))^2)^.5   
+source("lasso_fun.R")
+lassoCoefficients <- data.frame(
+  "Electronics" = as.numeric(lasso.fun(electronics)$coefficients),
+  "Percrip_Med" = as.numeric(lasso.fun(percrip_med)$coefficients),
+  "Drn_Clnr" = as.numeric(lasso.fun(drn_clnr)$coefficients),
+  "Dsps_Food" = as.numeric(lasso.fun(dsps_food)$coefficients))
+lassoCoefficients <- lassoCoefficients[-2,]
+row.names(lassoCoefficients) <-rownames((lasso.fun(electronics)$coefficients))[-2]
+lassoCoefficients <- round(lassoCoefficients,3)
+rownames((lasso.fun(electronics)$coefficients))
+lassoCoefficients[lassoCoefficients == 0] <- ""
+RMSE <- c(
+  lasso.fun(electronics)$RMSE,
+  lasso.fun(percrip_med)$RMSE,
+  lasso.fun(drn_clnr)$RMSE,
+  lasso.fun(dsps_food)$RMSE)
+rbind(lassoCoefficients,"RMSE" = signif(RMSE,3))
