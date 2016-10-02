@@ -1,4 +1,4 @@
-clean <- function(df,plot=FALSE,LASSO=TRUE,ALL=TRUE){
+clean <- function(raw,plot=FALSE,LASSO=TRUE,ALL=TRUE){
   suppressMessages(library(dplyr))
   suppressMessages(library(tidyr))
   suppressMessages(library(psych))
@@ -20,10 +20,10 @@ clean <- function(df,plot=FALSE,LASSO=TRUE,ALL=TRUE){
   if(plot==TRUE) pairs.panels(select(df,-response))#in second plot, response var has 0 correlation
   
   if(LASSO==TRUE){
-    data.ls$electronicsLASSO <- model.matrix(~.,(select(filter(df,response=="Electronics"),-response)))
-    data.ls$percrip_medLASSO <- model.matrix(~.,(select(filter(df,response=="Percrip_Med"),-response)))
-    data.ls$drn_clnrLASSO <- model.matrix(~.,(select(filter(df,response=="Drn_Clnr"),-response)))
-    data.ls$dsps_foodLASSO <- model.matrix(~.,(select(filter(df,response=="Dsps_Food"),-response)))
+    data.ls$electronics <- model.matrix(~.,(select(filter(df,response=="Electronics"),-response)))
+    data.ls$percrip_med <- model.matrix(~.,(select(filter(df,response=="Percrip_Med"),-response)))
+    data.ls$drn_clnr <- model.matrix(~.,(select(filter(df,response=="Drn_Clnr"),-response)))
+    data.ls$dsps_food <- model.matrix(~.,(select(filter(df,response=="Dsps_Food"),-response)))
   }
   return(data.ls)
 }
