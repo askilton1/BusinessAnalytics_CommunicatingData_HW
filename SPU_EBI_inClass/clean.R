@@ -20,10 +20,10 @@ clean <- function(raw,plot=FALSE,LASSO=TRUE,ALL=TRUE){
   if(plot==TRUE) pairs.panels(select(df,-response))#in second plot, response var has 0 correlation
   
   if(LASSO==TRUE){
-    data.ls$electronics <- model.matrix(~.,(select(filter(df,response=="Electronics"),-response)))
-    data.ls$percrip_med <- model.matrix(~.,(select(filter(df,response=="Percrip_Med"),-response)))
-    data.ls$drn_clnr <- model.matrix(~.,(select(filter(df,response=="Drn_Clnr"),-response)))
-    data.ls$dsps_food <- model.matrix(~.,(select(filter(df,response=="Dsps_Food"),-response)))
+    data.ls$electronics <- model.matrix(~.,select(filter(df,response=="Electronics"),-response,-Age_Cat))
+    data.ls$percrip_med <- model.matrix(~.,select(filter(df,response=="Percrip_Med"),-response,-Age_Cat))
+    data.ls$drn_clnr <- model.matrix(~.,select(filter(df,response=="Drn_Clnr"),-response,-Age_Cat))
+    data.ls$dsps_food <- model.matrix(~.,select(filter(df,response=="Dsps_Food"),-response,-Age_Cat))
   }
   return(data.ls)
 }
