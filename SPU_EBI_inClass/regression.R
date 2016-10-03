@@ -9,7 +9,14 @@ stargazer(lm(rating~.,data=data.frame(electronics)),
           lm(rating~.,data.frame(drn_clnr)),
           lm(rating~.,data.frame(dsps_food)),
           lm(rating~.,data=data.frame(model.matrix(~.,completeData))),
-          type="text",no.space=TRUE)
+          type="text",no.space=TRUE,
+          column.labels=c("Electronics",
+                          "Rx",
+                          "Drain Cleaner",
+                          "Food Disposal",
+                          "All"),
+          omit.stat = c("f","ser","rsq","adj.rsq")
+          )
 
 ##LASSO variable selection
 source("lasso_fun.R")
