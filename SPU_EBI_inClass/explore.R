@@ -2,11 +2,9 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(gridExtra)
-EBI <- tbl_df(read.csv("2_EBI_Data.csv"))
-hist(unique(EBI$Age))
+EBI.raw <- tbl_df(read.csv("2_EBI_Data.csv"))
 
-
-EBI %>%
+EBI.raw %>%
   gather(key=response,value=rating,Electronics,Percrip_Med,Drn_Clnr,Dsps_Food) %>%
   ggplot(aes(x=Age)) + #custom plot for the only contiuous var: Age
     geom_density(aes(fill=response),position="dodge",alpha=0.5) + 
@@ -15,7 +13,7 @@ EBI %>%
 
 factorNames <- c("Age_Cat","Education","Dwelling") #names of interesting factor vars
 plist<-lapply(factorNames,function(x){
-  p <- EBI %>%
+  p <- EBI.raw %>%
     gather(key=response, #transform customer rating vars so kind of pollution
            value=rating, #is in one column, and rating is in another
            Electronics,
