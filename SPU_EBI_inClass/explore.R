@@ -39,7 +39,6 @@ plist<-lapply(factorNames,function(x){
                    }
   }
 )
-n <- length(plist)
-nCol <- floor(sqrt(n))
+
 m1 <- do.call("grid.arrange", c(plist, ncol=1))
 ggsave("multiplot.pdf",m1)
