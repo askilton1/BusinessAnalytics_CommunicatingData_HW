@@ -1,14 +1,17 @@
 source("clean.R")
+source("rmse_fun.R")
 library(stargazer)
 
 EBI <- clean(read.csv("2_EBI_Data.csv"))
 attach(EBI)
 
-stargazer(lm(rating~.,data=data.frame(electronics)),
-          lm(rating~.,data=data.frame(percrip_med)),
-          lm(rating~.,data.frame(drn_clnr)),
-          lm(rating~.,data.frame(dsps_food)),
-          lm(rating~.,data=data.frame(model.matrix(~.,completeData))),
+mod1 <- lm(rating~.,data=data.frame(electronics)); rmse1 <- rmse_fun(electronics)
+mod2 <- lm(rating~.,data=data.frame(percrip_med)); rmse2 <- rmse_fun(percrip_med)
+mod3 <- lm(rating~.,data=data.frame(drn_clnr)); rmse3 <- rmse_fun(drn_clnr)
+mod4 <- lm(rating~.,data=data.frame(dsps_food)); rmse4 <- rmse_fun(dsps_food)
+modAll <- lm(rating~.,data=data.frame(model.matrix(~.,completeData))); rmseAll <- rmse_fun(model.matrix(~.,completeData))
+
+stargazer(mod1, mod2, mod3, mod4,modAll,
           type="text",no.space=TRUE,
           column.labels=c("Electronics",
                           "Rx",
