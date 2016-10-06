@@ -1,0 +1,45 @@
+---
+title: "rating_tables"
+author: "Antonio Skilton"
+date: "10/5/2016"
+output: pdf_document
+---
+
+```{r setup, echo=FALSE, messages=FALSE}
+suppressMessages(library(dplyr));library(tidyr)
+source("clean.R")
+data <- clean(read.csv("2_EBI_Data.csv"),LASSO=FALSE)$completeData
+library(knitr)
+```
+
+```{r}
+kable(data %>% 
+        group_by(response,Education) %>% 
+        summarise(avgrating = round(mean(rating),2),n = n()))
+```
+
+\newpage
+
+```{r}
+kable(data %>% 
+        group_by(response,Dwelling) %>% 
+        summarise(avgrating = round(mean(rating),2),n = n()))
+```
+```{r}
+kable(data %>% 
+        group_by(response,Gender) %>% 
+        summarise(avgrating = round(mean(rating),2),n = n()))
+```
+
+\newpage
+
+```{r}
+kable(data %>% 
+        group_by(response,Wrk_Stat) %>% 
+        summarise(avgrating = round(mean(rating),2),n = n()))
+```
+```{r}
+kable(data %>% 
+        group_by(response,Own_Rent) %>% 
+        summarise(avgrating = round(mean(rating),2),n = n()))
+```
