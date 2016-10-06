@@ -7,7 +7,7 @@ output: pdf_document
 
 ```{r setup, echo=FALSE, messages=FALSE}
 suppressMessages(library(dplyr));library(tidyr)
-source("clean.R")
+source("functions/clean.R")
 data <- clean(read.csv("2_EBI_Data.csv"),LASSO=FALSE)$completeData
 library(knitr)
 ```

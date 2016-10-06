@@ -2,7 +2,7 @@ clean <- function(raw_data,plot=FALSE,LASSO=TRUE,ALL=TRUE){
   suppressMessages(library(dplyr))
   suppressMessages(library(tidyr))
   suppressMessages(library(psych))
-  source("my_aggr.R")
+  source("functions/my_aggr.R")
   
   raw_data <- tbl_df(raw_data)
   

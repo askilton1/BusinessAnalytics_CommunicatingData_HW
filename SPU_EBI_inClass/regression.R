@@ -5,8 +5,8 @@ lapply(paste('package:',names(sessionInfo()$otherPkgs),sep=""), detach, characte
 while(1==1){detach(EBI)}
 ###########################
 
-source("clean.R")
-source("rmse_fun2.R")
+source("functions/clean.R")
+source("functions/rmse_fun2.R")
 library(stargazer)
 
 EBI <- clean(read.csv("2_EBI_Data.csv"))
