@@ -19,7 +19,11 @@ clean <- function(raw_data,gather=FALSE,cleanPlots=FALSE,LASSO=TRUE,ALL=TRUE){
                                                       "Missing / Prefer not to answer")))
   } else {
     df <- raw_data %>%
-      select(-Inc_Cat)
+      select(-Inc_Cat) %>%
+      mutate(Education = factor(Education, levels = c("Non-high school graduate","High school diploma / GED", 
+                                                      "Some college", "Associates Degree", "Bachelor's Degree", 
+                                                      "Some graduate work", "Graduate degree(s)", 
+                                                      "Missing / Prefer not to answer")))
   }
   
   if(cleanPlots==TRUE) my_aggr(df)
@@ -37,10 +41,12 @@ clean <- function(raw_data,gather=FALSE,cleanPlots=FALSE,LASSO=TRUE,ALL=TRUE){
   if(cleanPlots==TRUE) pairs.panels(select(df,-response))#in second plot, response var has 0 correlation
   
   if(LASSO==TRUE){
-    data.ls$electronics <- model.matrix(~.,select(filter(df,response=="Electronics"),-response,-Age_Cat))
-    data.ls$percrip_med <- model.matrix(~.,select(filter(df,response=="Percrip_Med"),-response,-Age_Cat))
-    data.ls$drn_clnr <- model.matrix(~.,select(filter(df,response=="Drn_Clnr"),-response,-Age_Cat))
-    data.ls$dsps_food <- model.matrix(~.,select(filter(df,response=="Dsps_Food"),-response,-Age_Cat))
+    if(gather==FALSE) df <- df %>% gather(key=response,value=rating,Electronics,Percrip_Med,Drn_Clnr,Dsps_Food)
+    data.ls$completeData <- na.omit(df)
+      data.ls$electronics <- model.matrix(~.,select(filter(df,response=="Electronics"),-response))
+      data.ls$percrip_med <- model.matrix(~.,select(filter(df,response=="Percrip_Med"),-response))
+      data.ls$drn_clnr <- model.matrix(~.,select(filter(df,response=="Drn_Clnr"),-response))
+      data.ls$dsps_food <- model.matrix(~.,select(filter(df,response=="Dsps_Food"),-response))
   }
   return(data.ls)
 }

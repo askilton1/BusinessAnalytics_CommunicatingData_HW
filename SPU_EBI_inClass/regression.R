@@ -32,7 +32,7 @@ stargazer(mod1, mod2, mod3, mod4,modAll,
           )
 
 ##LASSO variable selection
-source("lasso_fun.R")
+source("functions/lasso_fun.R")
 lassoCoefficients <- data.frame(
   "Electronics" = as.numeric(lasso.fun(electronics)$coefficients),
   "Percrip_Med" = as.numeric(lasso.fun(percrip_med)$coefficients),
@@ -41,7 +41,6 @@ lassoCoefficients <- data.frame(
 lassoCoefficients <- lassoCoefficients[-2,]
 row.names(lassoCoefficients) <-rownames((lasso.fun(electronics)$coefficients))[-2]
 lassoCoefficients <- round(lassoCoefficients,3)
-rownames((lasso.fun(electronics)$coefficients))
 lassoCoefficients[lassoCoefficients == 0] <- ""
 RMSE <- c(
   lasso.fun(electronics)$RMSE,
