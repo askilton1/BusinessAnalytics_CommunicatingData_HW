@@ -1,7 +1,4 @@
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(gridExtra)
+library(dplyr);library(tidyr);library(ggplot2);library(gridExtra)
 source("functions/clean.R")
 
 EBI <- clean(read.csv("2_EBI_Data.csv"),gather=TRUE)$completeData
