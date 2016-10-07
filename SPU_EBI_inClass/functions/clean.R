@@ -13,6 +13,7 @@ clean <- function(raw_data,gather=FALSE,cleanPlots=FALSE,LASSO=TRUE,ALL=TRUE){
     df <- raw_data %>%
       select(-Inc_Cat) %>% #missing too many observations!
       gather(key=response,value=rating,Electronics,Percrip_Med,Drn_Clnr,Dsps_Food) %>%
+      mutate(response <- as.factor(response)) %>%
       mutate(Education = factor(Education, levels = c("Non-high school graduate","High school diploma / GED", 
                                                       "Some college", "Associates Degree", "Bachelor's Degree", 
                                                       "Some graduate work", "Graduate degree(s)", 
