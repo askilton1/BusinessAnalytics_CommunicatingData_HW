@@ -17,21 +17,21 @@ data %>%
   filter(Education != "Missing / Prefer not to answer") %>%
   group_by(Education) %>%
   summarise_at(9:12,funs(round(mean(.),3))) %>%
-  kable(,captions="Rating") 
+  kable(,caption="Education Level") 
 ```
 
 ```{r}
 data %>%
   group_by(Dwelling) %>%
   summarise_at(9:12,funs(round(mean(.),3))) %>%
-  kable(,captions="Rating") 
+  kable(,caption="Dwelling") 
 ```
 
 ```{r}
 data %>%
   group_by(Gender) %>%
   summarise_at(9:12,funs(round(mean(.),3))) %>%
-  kable(,captions="Rating") 
+  kable(,caption="Gender") 
 ```
 
 \newpage
@@ -40,12 +40,12 @@ data %>%
 data %>%
   group_by(Wrk_Stat) %>%
   summarise_at(9:12,funs(round(mean(.),3))) %>%
-  kable(,captions="Rating") 
+  kable(,caption="Work Status") 
 ```
 
 ```{r}
 data %>%
   group_by(Own_Rent) %>%
   summarise_at(9:12,funs(round(mean(.),3))) %>%
-  kable(,captions="Rating") 
+  kable(,caption="Own or Rent Home") 
 ```
