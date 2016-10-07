@@ -1,0 +1,36 @@
+---
+title: "EBI_plots"
+author: "Antonio Skilton"
+date: "10/6/2016"
+output: pdf_document
+---
+
+```{r setup, message=FALSE,echo=FALSE}
+library(dplyr);library(tidyr);library(ggplot2);library(gridExtra)
+source("functions/clean.R")
+```
+
+
+```{r cars}
+EBI <- clean(read.csv("2_EBI_Data.csv"),gather=TRUE)$completeData
+```
+
+```{r}
+EBI %>%
+  group_by(response,rating) %>%
+  summarise(n=n()) %>%
+  ggplot(aes(x=response,y=n,fill=as.character(rating))) + 
+    geom_bar(stat="identity",position="dodge") +
+    ylab("Mean age")
+```
+
+####Custom plot for the only continuous variable, Age.
+```{r}
+EBI %>%
+  group_by(response,rating) %>%
+  summarise(mean=mean(Age),n=n()) %>%
+  ggplot(aes(x=rating,y=mean,fill=response)) + 
+    geom_bar(stat="identity",position="dodge") +
+    ylab("Mean age")
+```
+
