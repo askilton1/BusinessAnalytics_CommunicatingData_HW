@@ -2,24 +2,18 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(gridExtra)
-EBI.raw <- tbl_df(read.csv("2_EBI_Data.csv"))
+source("functions/clean.R")
 
-EBI.raw %>%
-  gather(key=response,value=rating,Electronics,Percrip_Med,Drn_Clnr,Dsps_Food) %>%
+EBI <- clean(read.csv("2_EBI_Data.csv"),gather=TRUE)$completeData
+
+EBI %>%
   ggplot(aes(x=Age)) + #custom plot for the only contiuous var: Age
     geom_density(aes(fill=response),position="dodge",alpha=0.5) + 
-    #geom_density(aes(color=rating)) + 
     facet_grid(response~rating,scales = "free")
 
-factorNames <- c("Age_Cat","Education","Dwelling") #names of interesting factor vars
+factorNames <- names(select_if(EBI,is.factor)) #names of interesting factor vars
 plist<-lapply(factorNames,function(x){
-  p <- EBI.raw %>%
-    gather(key=response, #transform customer rating vars so kind of pollution
-           value=rating, #is in one column, and rating is in another
-           Electronics,
-           Percrip_Med,
-           Drn_Clnr,
-           Dsps_Food) %>%
+  p <- EBI %>%
     group_by_(x,"response") %>%
     na.omit() %>% #placing this after group_by_() reduces number of observations omitted
     summarise(mean=mean(rating),se=sd(rating)) %>%
@@ -37,8 +31,7 @@ plist<-lapply(factorNames,function(x){
                      p <- p + theme(axis.text.x=element_blank(),
                                     legend.position="bottom") #put legend on the bottom
                    }
-  }
-)
+  })
 
 m1 <- do.call("grid.arrange", c(plist, ncol=1))
 ggsave("multiplot.pdf",m1)
