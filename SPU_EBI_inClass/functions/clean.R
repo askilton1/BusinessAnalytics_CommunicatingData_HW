@@ -42,7 +42,7 @@ clean <- function(raw_data,gather=FALSE,cleanPlots=FALSE,LASSO=TRUE,ALL=TRUE){
   if(cleanPlots==TRUE) pairs.panels(select(df,-response))#in second plot, response var has 0 correlation
   
   if(LASSO==TRUE){
-    if(gather==FALSE) df <- df %>% gather(key=response,value=rating,Electronics,Percrip_Med,Drn_Clnr,Dsps_Food)
+    if(gather==FALSE) df <- df %>% gather(key=response,value=rating,Electronics,Percrip_Med,Drn_Clnr,Dsps_Food) %>% mutate(response <- as.factor(response))
     data.ls$completeData <- na.omit(df)
       data.ls$electronics <- model.matrix(~.,select(filter(df,response=="Electronics"),-response))
       data.ls$percrip_med <- model.matrix(~.,select(filter(df,response=="Percrip_Med"),-response))
